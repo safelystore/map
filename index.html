@@ -15,7 +15,6 @@
         canvas {
             cursor: crosshair;
             transition: transform 0.1s ease-out;
-            position: absolute;
         }
     </style>
 </head>
@@ -38,15 +37,17 @@
         // Инициализация поля
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Отрисовка контура
-        function drawBorder() {
-            ctx.strokeStyle = '#000000';  // Черный цвет для контура
-            ctx.lineWidth = 2;  // Толщина линии контура
-            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+        // Отрисовка контура поля (без сетки)
+        function drawOutline() {
+            ctx.strokeStyle = '#000000'; // Черный цвет для контура
+            ctx.lineWidth = 2; // Толщина линии
+            ctx.beginPath();
+            ctx.rect(0, 0, canvas.width, canvas.height); // Рисуем прямоугольник
+            ctx.stroke();
         }
 
-        drawBorder();
+        drawOutline(); // Отрисовка контура
 
         // События для свайпа/перетаскивания
         canvas.addEventListener('mousedown', (e) => {
@@ -59,7 +60,7 @@
             if (isDragging) {
                 offsetX = e.clientX - startX;
                 offsetY = e.clientY - startY;
-                updateCanvasPosition();
+                canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
             }
         });
 
@@ -73,6 +74,7 @@
         // События для сенсорных устройств
         canvas.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
+                // Два пальца — начинаем зум
                 initialDistance = getDistance(e.touches[0], e.touches[1]);
             } else {
                 isDragging = true;
@@ -83,25 +85,27 @@
 
         canvas.addEventListener('touchmove', (e) => {
             if (e.touches.length === 2 && initialDistance !== null) {
+                // Расстояние между двумя пальцами для зума
                 const currentDistance = getDistance(e.touches[0], e.touches[1]);
                 const distanceChange = currentDistance - initialDistance;
 
+                // Увеличение/уменьшение масштаба в зависимости от движения пальцев
                 if (Math.abs(distanceChange) > 10) {
                     const scaleChange = distanceChange * 0.002; // Скорость изменения масштаба
                     scale = Math.min(maxScale, Math.max(minScale, scale + scaleChange));
-                    updateCanvasScale();
-                    initialDistance = currentDistance;
+                    canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+                    initialDistance = currentDistance; // Обновляем начальное расстояние
                 }
             } else if (isDragging) {
                 offsetX = e.touches[0].clientX - startX;
                 offsetY = e.touches[0].clientY - startY;
-                updateCanvasPosition();
+                canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
             }
         });
 
         canvas.addEventListener('touchend', (e) => {
             if (e.touches.length < 2) {
-                initialDistance = null;
+                initialDistance = null; // Завершаем зум
             } else {
                 isDragging = false;
             }
@@ -110,13 +114,12 @@
         // Раскрашивание пикселей
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
-            // Учитаем смещение и масштаб при вычислении координат
-            const x = Math.floor(((e.clientX - rect.left - offsetX) / scale) / 10) * 10;
-            const y = Math.floor(((e.clientY - rect.top - offsetY) / scale) / 10) * 10;
+            const x = Math.floor((e.clientX - rect.left) / (10 * scale)) * 10;
+            const y = Math.floor((e.clientY - rect.top) / (10 * scale)) * 10;
 
             ctx.fillStyle = '#ff0000'; // Цвет для раскрашивания (можно изменить)
-            ctx.fillRect(x, y, 10 * scale, 10 * scale);
-            drawBorder(); // Перерисовка контура поверх закрашенных ячеек
+            ctx.fillRect(x, y, 10, 10);
+            drawOutline(); // Перерисовка контура поверх раскрашенных ячеек
         });
 
         // Добавление событий зумирования с колесиком мыши
@@ -124,7 +127,7 @@
             e.preventDefault();
             const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
             scale = Math.min(maxScale, Math.max(minScale, scale + delta));
-            updateCanvasScale();
+            canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
         });
 
         // Функция для вычисления расстояния между двумя точками
@@ -132,17 +135,6 @@
             const dx = touch2.clientX - touch1.clientX;
             const dy = touch2.clientY - touch1.clientY;
             return Math.sqrt(dx * dx + dy * dy);
-        }
-
-        // Обновление масштаба канваса
-        function updateCanvasScale() {
-            canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-            drawBorder();
-        }
-
-        // Обновление позиции канваса
-        function updateCanvasPosition() {
-            canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
         }
     </script>
 </body>
