@@ -38,16 +38,17 @@
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Отрисовка сетки
+        // Отрисовка сетки с учетом масштаба
         function drawGrid() {
             ctx.strokeStyle = '#cccccc';
-            for (let i = 0; i <= canvas.width; i += 10) {
+            const gridSize = 10 * scale; // Размер сетки с учетом масштаба
+            for (let i = 0; i <= canvas.width; i += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(i, 0);
                 ctx.lineTo(i, canvas.height);
                 ctx.stroke();
             }
-            for (let j = 0; j <= canvas.height; j += 10) {
+            for (let j = 0; j <= canvas.height; j += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(0, j);
                 ctx.lineTo(canvas.width, j);
@@ -55,6 +56,7 @@
             }
         }
 
+        // Инициализация изображения
         drawGrid();
 
         // События для свайпа/перетаскивания
@@ -119,14 +121,14 @@
             }
         });
 
-        // Раскрашивание пикселей
+        // Раскрашивание пикселей с учетом масштаба
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / (10 * scale)) * 10;
             const y = Math.floor((e.clientY - rect.top) / (10 * scale)) * 10;
 
             ctx.fillStyle = '#ff0000'; // Цвет для раскрашивания (можно изменить)
-            ctx.fillRect(x, y, 10, 10);
+            ctx.fillRect(x, y, 10 * scale, 10 * scale); // Учитываем масштаб при рисовании
             drawGrid(); // Перерисовка сетки поверх закрашенных ячеек
         });
 
@@ -136,6 +138,7 @@
             const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
             scale = Math.min(maxScale, Math.max(minScale, scale + delta));
             canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+            drawGrid(); // Перерисовываем сетку после изменения масштаба
         });
 
         // Функция для вычисления расстояния между двумя точками
