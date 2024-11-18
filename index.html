@@ -110,8 +110,9 @@
         // Раскрашивание пикселей
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left - offsetX) / (10 * scale)) * 10;
-            const y = Math.floor((e.clientY - rect.top - offsetY) / (10 * scale)) * 10;
+            // Учитаем смещение и масштаб при вычислении координат
+            const x = Math.floor(((e.clientX - rect.left - offsetX) / scale) / 10) * 10;
+            const y = Math.floor(((e.clientY - rect.top - offsetY) / scale) / 10) * 10;
 
             ctx.fillStyle = '#ff0000'; // Цвет для раскрашивания (можно изменить)
             ctx.fillRect(x, y, 10 * scale, 10 * scale);
