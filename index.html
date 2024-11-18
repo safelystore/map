@@ -38,7 +38,7 @@
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Отрисовка контура поля (без сетки)
+        // Отрисовка контура поля
         function drawOutline() {
             ctx.strokeStyle = '#000000'; // Черный цвет для контура
             ctx.lineWidth = 2; // Толщина линии
@@ -60,13 +60,14 @@
             if (isDragging) {
                 offsetX = e.clientX - startX;
                 offsetY = e.clientY - startY;
-                canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+                updateCanvasTransform();
             }
         });
 
         canvas.addEventListener('mouseup', () => {
             isDragging = false;
         });
+
         canvas.addEventListener('mouseleave', () => {
             isDragging = false;
         });
@@ -93,13 +94,13 @@
                 if (Math.abs(distanceChange) > 10) {
                     const scaleChange = distanceChange * 0.002; // Скорость изменения масштаба
                     scale = Math.min(maxScale, Math.max(minScale, scale + scaleChange));
-                    canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
                     initialDistance = currentDistance; // Обновляем начальное расстояние
+                    updateCanvasTransform();
                 }
             } else if (isDragging) {
                 offsetX = e.touches[0].clientX - startX;
                 offsetY = e.touches[0].clientY - startY;
-                canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+                updateCanvasTransform();
             }
         });
 
@@ -114,8 +115,8 @@
         // Раскрашивание пикселей
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / (10 * scale)) * 10;
-            const y = Math.floor((e.clientY - rect.top) / (10 * scale)) * 10;
+            const x = Math.floor((e.clientX - rect.left - offsetX) / (10 * scale)) * 10;
+            const y = Math.floor((e.clientY - rect.top - offsetY) / (10 * scale)) * 10;
 
             ctx.fillStyle = '#ff0000'; // Цвет для раскрашивания (можно изменить)
             ctx.fillRect(x, y, 10, 10);
@@ -123,11 +124,11 @@
         });
 
         // Добавление событий зумирования с колесиком мыши
-        canvasContainer.addEventListener('wheel', (e) => {
+        document.getElementById('canvasContainer').addEventListener('wheel', (e) => {
             e.preventDefault();
             const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
             scale = Math.min(maxScale, Math.max(minScale, scale + delta));
-            canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+            updateCanvasTransform();
         });
 
         // Функция для вычисления расстояния между двумя точками
@@ -135,6 +136,12 @@
             const dx = touch2.clientX - touch1.clientX;
             const dy = touch2.clientY - touch1.clientY;
             return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // Функция обновления трансформации канваса
+        function updateCanvasTransform() {
+            // Применяем масштаб и перемещение
+            canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
         }
     </script>
 </body>
