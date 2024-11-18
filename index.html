@@ -32,6 +32,7 @@
         const scaleStep = 0.1;
         const minScale = 0.5;
         const maxScale = 3;
+        let initialDistance = null;
 
         // Инициализация поля
         ctx.fillStyle = '#ffffff';
@@ -80,21 +81,42 @@
 
         // События для сенсорных устройств
         canvas.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            startX = e.touches[0].clientX - offsetX;
-            startY = e.touches[0].clientY - offsetY;
+            if (e.touches.length === 2) {
+                // Два пальца — начинаем зум
+                initialDistance = getDistance(e.touches[0], e.touches[1]);
+            } else {
+                isDragging = true;
+                startX = e.touches[0].clientX - offsetX;
+                startY = e.touches[0].clientY - offsetY;
+            }
         });
 
         canvas.addEventListener('touchmove', (e) => {
-            if (isDragging) {
+            if (e.touches.length === 2 && initialDistance !== null) {
+                // Расстояние между двумя пальцами для зума
+                const currentDistance = getDistance(e.touches[0], e.touches[1]);
+                const distanceChange = currentDistance - initialDistance;
+
+                // Увеличение/уменьшение масштаба в зависимости от движения пальцев
+                if (Math.abs(distanceChange) > 10) {
+                    const scaleChange = distanceChange * 0.002; // Скорость изменения масштаба
+                    scale = Math.min(maxScale, Math.max(minScale, scale + scaleChange));
+                    canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+                    initialDistance = currentDistance; // Обновляем начальное расстояние
+                }
+            } else if (isDragging) {
                 offsetX = e.touches[0].clientX - startX;
                 offsetY = e.touches[0].clientY - startY;
                 canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
             }
         });
 
-        canvas.addEventListener('touchend', () => {
-            isDragging = false;
+        canvas.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) {
+                initialDistance = null; // Завершаем зум
+            } else {
+                isDragging = false;
+            }
         });
 
         // Раскрашивание пикселей
@@ -108,13 +130,20 @@
             drawGrid(); // Перерисовка сетки поверх закрашенных ячеек
         });
 
-        // Добавление событий зумирования
+        // Добавление событий зумирования с колесиком мыши
         canvasContainer.addEventListener('wheel', (e) => {
             e.preventDefault();
             const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
             scale = Math.min(maxScale, Math.max(minScale, scale + delta));
             canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
         });
+
+        // Функция для вычисления расстояния между двумя точками
+        function getDistance(touch1, touch2) {
+            const dx = touch2.clientX - touch1.clientX;
+            const dy = touch2.clientY - touch1.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
     </script>
 </body>
 </html>
