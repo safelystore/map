@@ -69,7 +69,7 @@
             if (isDragging) {
                 offsetX = e.clientX - startX;
                 offsetY = e.clientY - startY;
-                // Ограничиваем область, чтобы не вывести холст за пределы контейнера
+                // Ограничиваем область перемещения содержимого
                 const maxOffsetX = (canvas.width * scale - window.innerWidth);
                 const maxOffsetY = (canvas.height * scale - window.innerHeight);
                 offsetX = Math.min(Math.max(offsetX, -maxOffsetX), 0);
