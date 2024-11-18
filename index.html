@@ -14,6 +14,7 @@
         }
         canvas {
             cursor: crosshair;
+            transition: transform 0.1s ease-out;
         }
     </style>
 </head>
@@ -28,6 +29,9 @@
         let startX, startY;
         let offsetX = 0, offsetY = 0;
         let scale = 1;
+        const scaleStep = 0.1;
+        const minScale = 0.5;
+        const maxScale = 3;
 
         // Инициализация поля
         ctx.fillStyle = '#ffffff';
@@ -96,12 +100,20 @@
         // Раскрашивание пикселей
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / 10) * 10;
-            const y = Math.floor((e.clientY - rect.top) / 10) * 10;
+            const x = Math.floor((e.clientX - rect.left) / (10 * scale)) * 10;
+            const y = Math.floor((e.clientY - rect.top) / (10 * scale)) * 10;
 
             ctx.fillStyle = '#ff0000'; // Цвет для раскрашивания (можно изменить)
             ctx.fillRect(x, y, 10, 10);
             drawGrid(); // Перерисовка сетки поверх закрашенных ячеек
+        });
+
+        // Добавление событий зумирования
+        canvasContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
+            scale = Math.min(maxScale, Math.max(minScale, scale + delta));
+            canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
         });
     </script>
 </body>
