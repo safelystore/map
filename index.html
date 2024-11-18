@@ -37,17 +37,25 @@
         // Инициализация поля
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Отрисовка контура поля
-        function drawOutline() {
-            ctx.strokeStyle = '#000000'; // Черный цвет для контура
-            ctx.lineWidth = 2; // Толщина линии
-            ctx.beginPath();
-            ctx.rect(0, 0, canvas.width, canvas.height); // Рисуем прямоугольник
-            ctx.stroke();
+        
+        // Отрисовка сетки
+        function drawGrid() {
+            ctx.strokeStyle = '#cccccc';
+            for (let i = 0; i <= canvas.width; i += 10) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let j = 0; j <= canvas.height; j += 10) {
+                ctx.beginPath();
+                ctx.moveTo(0, j);
+                ctx.lineTo(canvas.width, j);
+                ctx.stroke();
+            }
         }
 
-        drawOutline(); // Отрисовка контура
+        drawGrid();
 
         // События для свайпа/перетаскивания
         canvas.addEventListener('mousedown', (e) => {
@@ -60,14 +68,13 @@
             if (isDragging) {
                 offsetX = e.clientX - startX;
                 offsetY = e.clientY - startY;
-                updateCanvasTransform();
+                canvas.style.transform = translate(${offsetX}px, ${offsetY}px) scale(${scale});
             }
         });
 
         canvas.addEventListener('mouseup', () => {
             isDragging = false;
         });
-
         canvas.addEventListener('mouseleave', () => {
             isDragging = false;
         });
@@ -94,13 +101,13 @@
                 if (Math.abs(distanceChange) > 10) {
                     const scaleChange = distanceChange * 0.002; // Скорость изменения масштаба
                     scale = Math.min(maxScale, Math.max(minScale, scale + scaleChange));
+                    canvas.style.transform = translate(${offsetX}px, ${offsetY}px) scale(${scale});
                     initialDistance = currentDistance; // Обновляем начальное расстояние
-                    updateCanvasTransform();
                 }
             } else if (isDragging) {
                 offsetX = e.touches[0].clientX - startX;
                 offsetY = e.touches[0].clientY - startY;
-                updateCanvasTransform();
+                canvas.style.transform = translate(${offsetX}px, ${offsetY}px) scale(${scale});
             }
         });
 
@@ -115,20 +122,20 @@
         // Раскрашивание пикселей
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left - offsetX) / (10 * scale)) * 10;
-            const y = Math.floor((e.clientY - rect.top - offsetY) / (10 * scale)) * 10;
+            const x = Math.floor((e.clientX - rect.left) / (10 * scale)) * 10;
+            const y = Math.floor((e.clientY - rect.top) / (10 * scale)) * 10;
 
             ctx.fillStyle = '#ff0000'; // Цвет для раскрашивания (можно изменить)
             ctx.fillRect(x, y, 10, 10);
-            drawOutline(); // Перерисовка контура поверх раскрашенных ячеек
+            drawGrid(); // Перерисовка сетки поверх закрашенных ячеек
         });
 
         // Добавление событий зумирования с колесиком мыши
-        document.getElementById('canvasContainer').addEventListener('wheel', (e) => {
+        canvasContainer.addEventListener('wheel', (e) => {
             e.preventDefault();
             const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
             scale = Math.min(maxScale, Math.max(minScale, scale + delta));
-            updateCanvasTransform();
+            canvas.style.transform = translate(${offsetX}px, ${offsetY}px) scale(${scale});
         });
 
         // Функция для вычисления расстояния между двумя точками
@@ -137,12 +144,6 @@
             const dy = touch2.clientY - touch1.clientY;
             return Math.sqrt(dx * dx + dy * dy);
         }
-
-        // Функция обновления трансформации канваса
-        function updateCanvasTransform() {
-            // Применяем масштаб и перемещение
-            canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-        }
     </script>
 </body>
-</html>
+</html> - 
