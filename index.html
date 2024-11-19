@@ -1,141 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Battle</title>
+    <title>Калькулятор по ст. 395 ГК РФ</title>
     <style>
-        #canvasContainer {
-            overflow: hidden;
-            touch-action: none;
-            width: 100%;
-            height: 100vh;
-            position: relative;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
         }
-        canvas {
-            cursor: crosshair;
-            transition: transform 0.1s ease-out;
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            margin-top: 5px;
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
+
 <body>
-    <div id="canvasContainer">
-        <canvas id="pixelCanvas" width="1000" height="1000"></canvas>
+    <div class="container">
+        <h1>Калькулятор по ст. 395 ГК РФ</h1>
+        <form id="calcForm">
+            <label for="principal">Сумма долга (руб):</label>
+            <input type="number" id="principal" placeholder="Введите сумму долга" required>
+
+            <label for="startDate">Дата начала просрочки:</label>
+            <input type="date" id="startDate" required>
+
+            <label for="endDate">Дата окончания просрочки:</label>
+            <input type="date" id="endDate" required>
+
+            <label for="rate">Ключевая ставка (%) :</label>
+            <input type="number" step="0.01" id="rate" placeholder="Введите ставку (например, 20.5)" required>
+
+            <button type="button" onclick="calculate()">Рассчитать</button>
+        </form>
+        <div class="result" id="result"></div>
     </div>
+
     <script>
-        const canvas = document.getElementById('pixelCanvas');
-        const ctx = canvas.getContext('2d');
-        let isDragging = false;
-        let startX, startY;
-        let offsetX = 0, offsetY = 0;
-        let scale = 1;
-        const scaleStep = 0.1;
-        const minScale = 0.5;
-        const maxScale = 4;
-        let initialDistance = null;
+        function _0xaba4() {
+            const _0x8ff81 = ['\x20руб.\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', 'value', '2066iYohaz',
+                '1680290EtRJtO', 'startDate', 'toFixed', '3xkmLhK', '96JPBrgl', '108335WYyNWb',
+                '\x20руб.<br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Количество\x20дней\x20просрочки:\x20',
+                'principal', 'rate',
+                '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<strong>Результаты\x20расчёта:</strong><br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Сумма\x20долга:\x20',
+                'getElementById', '114AjEScZ', '546308raYnXF', 'result', '29932diefdj', '2330192QZarEf',
+                '151QaEyru', 'endDate', '9VZAqKb',
+                '\x20дней<br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Начисленные\x20проценты:\x20',
+                'ceil', 'Пожалуйста,\x20проверьте\x20введённые\x20данные.', '324731xCDEeP'
+            ];
+            _0xaba4 = function () {
+                return _0x8ff81;
+            };
+            return _0xaba4();
+        }(function (_0x233891, _0x5e248a) {
+            const _0x7ee230 = _0x41c6,
+                _0x23666c = _0x233891();
+            while (!![]) {
+                try {
+                    const _0x2ae3a5 = -parseInt(_0x7ee230(0x166)) / 0x1 * (-parseInt(_0x7ee230(0x16f)) / 0x2) + -
+                        parseInt(_0x7ee230(0x173)) / 0x3 * (-parseInt(_0x7ee230(0x17c)) / 0x4) + parseInt(_0x7ee230(
+                            0x175)) / 0x5 + -parseInt(_0x7ee230(0x17b)) / 0x6 * (-parseInt(_0x7ee230(0x164)) /
+                            0x7) + parseInt(_0x7ee230(0x165)) / 0x8 * (-parseInt(_0x7ee230(0x168)) / 0x9) + -
+                        parseInt(
+                            _0x7ee230(0x170)) / 0xa + parseInt(_0x7ee230(0x16c)) / 0xb * (parseInt(_0x7ee230(
+                            0x174)) / 0xc);
+                    if (_0x2ae3a5 === _0x5e248a) break;
+                    else _0x23666c['push'](_0x23666c['shift']());
+                } catch (_0x5c2b68) {
+                    _0x23666c['push'](_0x23666c['shift']());
+                }
+            }
+        }(_0xaba4, 0x2a130));
 
-        // Инициализация поля
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Отрисовка контура поля (без сетки)
-        function drawOutline() {
-            ctx.strokeStyle = '#000000'; // Черный цвет для контура
-            ctx.lineWidth = 2; // Толщина линии
-            ctx.beginPath();
-            ctx.rect(0, 0, canvas.width, canvas.height); // Рисуем прямоугольник
-            ctx.stroke();
+        function _0x41c6(_0x10c0af, _0x1555fc) {
+            const _0xaba409 = _0xaba4();
+            return _0x41c6 = function (_0x41c62c, _0xc4d886) {
+                _0x41c62c = _0x41c62c - 0x164;
+                let _0x247a11 = _0xaba409[_0x41c62c];
+                return _0x247a11;
+            }, _0x41c6(_0x10c0af, _0x1555fc);
         }
 
-        drawOutline(); // Отрисовка контура
-
-        // События для свайпа/перетаскивания
-        canvas.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            startX = e.clientX - offsetX;
-            startY = e.clientY - offsetY;
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                offsetX = e.clientX - startX;
-                offsetY = e.clientY - startY;
-                canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+        function calculate() {
+            const _0x53726b = _0x41c6,
+                _0x162c2b = parseFloat(document[_0x53726b(0x17a)](_0x53726b(0x177))['value']),
+                _0x4e9700 = new Date(document[_0x53726b(0x17a)](_0x53726b(0x171))[_0x53726b(0x16e)]),
+                _0x3c2035 = new Date(document['getElementById'](_0x53726b(0x167))[_0x53726b(0x16e)]),
+                _0x444951 = parseFloat(document[_0x53726b(0x17a)](_0x53726b(0x178))['value']);
+            if (isNaN(_0x162c2b) || isNaN(_0x444951) || !_0x4e9700 || !_0x3c2035 || _0x4e9700 > _0x3c2035) {
+                document['getElementById'](_0x53726b(0x17d))['innerHTML'] = _0x53726b(0x16b);
+                return;
             }
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-        canvas.addEventListener('mouseleave', () => {
-            isDragging = false;
-        });
-
-        // События для сенсорных устройств
-        canvas.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) {
-                // Два пальца — начинаем зум
-                initialDistance = getDistance(e.touches[0], e.touches[1]);
-            } else {
-                isDragging = true;
-                startX = e.touches[0].clientX - offsetX;
-                startY = e.touches[0].clientY - offsetY;
-            }
-        });
-
-        canvas.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2 && initialDistance !== null) {
-                // Расстояние между двумя пальцами для зума
-                const currentDistance = getDistance(e.touches[0], e.touches[1]);
-                const distanceChange = currentDistance - initialDistance;
-
-                // Увеличение/уменьшение масштаба в зависимости от движения пальцев
-                if (Math.abs(distanceChange) > 10) {
-                    const scaleChange = distanceChange * 0.002; // Скорость изменения масштаба
-                    scale = Math.min(maxScale, Math.max(minScale, scale + scaleChange));
-                    canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-                    initialDistance = currentDistance; // Обновляем начальное расстояние
-                }
-            } else if (isDragging) {
-                offsetX = e.touches[0].clientX - startX;
-                offsetY = e.touches[0].clientY - startY;
-                canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-            }
-        });
-
-        canvas.addEventListener('touchend', (e) => {
-            if (e.touches.length < 2) {
-                initialDistance = null; // Завершаем зум
-            } else {
-                isDragging = false;
-            }
-        });
-
-        // Раскрашивание пикселей
-        canvas.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / (10 * scale)) * 10;
-            const y = Math.floor((e.clientY - rect.top) / (10 * scale)) * 10;
-
-            ctx.fillStyle = '#ff0000'; // Цвет для раскрашивания (можно изменить)
-            ctx.fillRect(x, y, 10, 10);
-            drawOutline(); // Перерисовка контура поверх раскрашенных ячеек
-        });
-
-        // Добавление событий зумирования с колесиком мыши
-        canvasContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
-            scale = Math.min(maxScale, Math.max(minScale, scale + delta));
-            canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-        });
-
-        // Функция для вычисления расстояния между двумя точками
-        function getDistance(touch1, touch2) {
-            const dx = touch2.clientX - touch1.clientX;
-            const dy = touch2.clientY - touch1.clientY;
-            return Math.sqrt(dx * dx + dy * dy);
+            const _0x471c6d = Math[_0x53726b(0x16a)]((_0x3c2035 - _0x4e9700) / (0x3e8 * 0x3c * 0x3c * 0x18)),
+                _0x44e1b7 = _0x162c2b * _0x444951 / 0x64 * (_0x471c6d / 0x16d);
+            document['getElementById'](_0x53726b(0x17d))['innerHTML'] = _0x53726b(0x179) + _0x162c2b[_0x53726b(0x172)](
+                    0x2) + _0x53726b(0x176) + _0x471c6d + _0x53726b(0x169) + _0x44e1b7[_0x53726b(0x172)](0x2) +
+                _0x53726b(0x16d);
         }
     </script>
 </body>
+
 </html>
